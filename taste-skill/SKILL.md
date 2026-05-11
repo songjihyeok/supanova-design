@@ -47,9 +47,8 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 **Rule 2: Color Calibration**
 * **Constraint:** Max 1 Accent Color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients are strictly BANNED. No neon glows, no purple button effects.
-* **Supanova Palette Philosophy:** Use deep neutral bases (Zinc-900, Slate-950, Stone-100) with ONE high-contrast accent (Emerald, Electric Blue, Warm Amber, or Deep Rose).
+* **Palette Freedom:** No default base color. Pick whichever neutral base (light, dark, warm, cool) fits the brand/content. Pair with ONE high-contrast accent (Emerald, Electric Blue, Warm Amber, or Deep Rose).
 * **COLOR CONSISTENCY:** One palette for the entire page. Never mix warm and cool grays.
-* **Dark Mode Default:** Landing pages look more premium in dark mode. Default to dark backgrounds (`bg-zinc-950`, `bg-slate-950`) unless the content demands light.
 
 **Rule 3: Landing Page Layout Diversification**
 * **ANTI-CENTER BIAS:** When `DESIGN_VARIANCE > 4`, centered Hero sections are BANNED. Use:
