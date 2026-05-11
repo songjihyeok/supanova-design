@@ -129,7 +129,7 @@ To guarantee premium, non-generic output:
 
 ### Visual & CSS
 * **NO Neon/Outer Glows.** Use inner borders or tinted shadows instead.
-* **NO Pure Black (#000000).** Use `#0a0a0a`, Zinc-950, or Slate-950.
+* **NO Pure Black (#000000) or Pure White (#FFFFFF).** For dark bases use `#0a0a0a`, Zinc-950, Slate-950. For light bases use `#FDFBF7`, Stone-50, Zinc-50. Always tinted, never absolute.
 * **NO Oversaturated Accents.** Desaturate to blend with neutrals.
 * **NO Excessive Gradient Text.** One gradient text element per page maximum.
 

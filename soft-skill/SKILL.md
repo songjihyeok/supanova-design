@@ -49,7 +49,7 @@ Premium cards are not flat rectangles. They look like machined hardware — a gl
 - **Structure:** Fully rounded pills (`rounded-full`) with generous padding (`px-8 py-4`).
 - **Arrow Icon Treatment:** Arrow icons NEVER sit naked next to text. Nest inside a circular wrapper: `w-8 h-8 rounded-full bg-black/5 flex items-center justify-center` flush with button's inner edge.
 - **Hover Physics:** `hover:scale-[1.02]` + arrow `hover:translate-x-1`. Active: `active:scale-[0.98]`.
-- **Glow Effect (dark mode):** Subtle `shadow-[0_0_30px_rgba(accent,0.2)]` on hover.
+- **Glow / Halo Effect:** On dark bases, subtle accent glow `shadow-[0_0_30px_rgba(accent,0.2)]` on hover. On light bases, diffused tinted ambient shadow `shadow-[0_20px_40px_-10px_rgba(accent,0.15)]` instead. Match to the chosen palette — never assume dark.
 
 ### C. Spatial Rhythm
 - **Macro-Whitespace:** Section padding `py-24 md:py-32 lg:py-40`. Let the design breathe heavily.

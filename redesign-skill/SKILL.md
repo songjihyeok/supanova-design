@@ -27,7 +27,7 @@ When applied to an existing landing page, follow this sequence:
 
 ### Color and Surfaces
 
-- **Pure `#000000` background.** Replace with `#0a0a0a`, `#09090b` (zinc-950), or tinted dark.
+- **Pure `#000000` or pure `#FFFFFF` background.** Replace with tinted neutrals matching the chosen palette: dark bases → `#0a0a0a`, `#09090b` (zinc-950), slate-950. Light bases → `#FDFBF7`, stone-50, zinc-50. Never default to dark — pick the base that fits the brand.
 - **Oversaturated accent colors.** Keep saturation below 80%. Desaturate to blend elegantly with neutrals.
 - **Multiple accent colors competing.** Pick ONE. Remove the rest.
 - **Purple/blue "AI gradient" aesthetic.** The most common AI design fingerprint. Replace with neutral bases + single considered accent.
