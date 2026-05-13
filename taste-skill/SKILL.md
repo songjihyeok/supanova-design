@@ -47,7 +47,7 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 **Rule 2: Color Calibration**
 * **Constraint:** Max 1 Accent Color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients are strictly BANNED. No neon glows, no purple button effects.
-* **Palette Freedom:** No default base color. Pick whichever neutral base (light, dark, warm, cool) fits the brand/content. Pair with ONE high-contrast accent (Emerald, Electric Blue, Warm Amber, or Deep Rose).
+* **Palette Freedom:** No default base color. Pick whichever neutral base (light, dark, warm, cool) fits the brand/content. Pair with ONE high-contrast accent.
 * **COLOR CONSISTENCY:** One palette for the entire page. Never mix warm and cool grays.
 
 **Rule 3: Landing Page Layout Diversification**
@@ -99,7 +99,7 @@ Do not default to generic layouts. Pull from this library of premium landing pag
 
 ### Hero Sections
 * **Split Hero:** 60/40 text-to-visual split. Text left, product screenshot or 3D render right. Background gradient bleed.
-* **Full-Bleed Media Hero:** Full-screen image/video with overlaid text. Dark gradient overlay from bottom. CTA floating at bottom-center.
+* **Full-Bleed Media Hero:** Full-screen image/video with overlaid text. Gradient overlay (tone matched to page palette) for legibility. CTA floating at bottom-center.
 * **Minimal Statement Hero:** Massive typography (text-7xl+) with extreme white-space. Single-line value proposition. Floating CTA pill.
 * **Interactive Hero:** Typewriter effect cycling through use cases. "AI로 __ 만들기" with rotating words.
 
@@ -116,7 +116,7 @@ Do not default to generic layouts. Pull from this library of premium landing pag
 * **Case Study Cards:** Before/after screenshots with overlay descriptions.
 
 ### CTA Sections
-* **Full-Bleed CTA:** Dark background, massive text, glowing accent CTA button, floating trust badges below.
+* **Full-Bleed CTA:** Solid background section (palette-matched), massive text, accent CTA button, floating trust badges below.
 * **Sticky Bottom CTA:** Fixed bottom bar that appears after scrolling past the hero.
 * **Inline CTA:** Embedded within content flow, styled differently from surrounding sections.
 
@@ -129,7 +129,7 @@ To guarantee premium, non-generic output:
 
 ### Visual & CSS
 * **NO Neon/Outer Glows.** Use inner borders or tinted shadows instead.
-* **NO Pure Black (#000000) or Pure White (#FFFFFF).** For dark bases use `#0a0a0a`, Zinc-950, Slate-950. For light bases use `#FDFBF7`, Stone-50, Zinc-50. Always tinted, never absolute.
+* **NO Pure Black (#000000) or Pure White (#ffffff) as raw surfaces.** Use slightly tinted neutrals from the chosen palette.
 * **NO Oversaturated Accents.** Desaturate to blend with neutrals.
 * **NO Excessive Gradient Text.** One gradient text element per page maximum.
 
