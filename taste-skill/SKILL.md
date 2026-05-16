@@ -10,6 +10,8 @@ description: Supanova Landing Page Design Engine. Generates premium, conversion-
 * MOTION_INTENSITY: 6 (1=Static/No movement, 10=Cinematic/Magic Physics)
 * VISUAL_DENSITY: 3 (1=Art Gallery/Airy, 10=Pilot Cockpit/Packed Data)
 * LANDING_PURPOSE: conversion (conversion | brand | portfolio | saas | ecommerce)
+* **SURFACE_MODE: light** (light | dark) — default LIGHT. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode. Stop defaulting to dark.
+* **PROJECT_CATEGORY:** Always classify project FIRST (Study / Finance / Health / Food / Dev / Portfolio / Beauty / Entertainment) before picking palette. See Rule 2 Project Palette Map.
 
 **AI Instruction:** The standard baseline for all generations is strictly set to these values (8, 6, 3, conversion). Do not ask the user to edit this file. ALWAYS listen to the user: adapt these values dynamically based on what they explicitly request in their prompts. Use these baseline (or user-overridden) values as your global variables to drive the specific logic in Sections 3 through 8.
 
@@ -47,8 +49,19 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 **Rule 2: Color Calibration**
 * **Constraint:** Max 1 Accent Color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients are strictly BANNED. No neon glows, no purple button effects.
-* **Palette Freedom:** No default base color. Pick whichever neutral base (light, dark, warm, cool) fits the brand/content. Pair with ONE high-contrast accent.
+* **DEFAULT IS LIGHT [CRITICAL]:** Base surface defaults to LIGHT (off-white / warm cream / silver-grey). Dark mode is opt-in, not default. Only go dark when project category explicitly signals it (see Project Palette Map below) OR user explicitly requests dark.
+* **PROJECT PALETTE MAP — derive base + accent from project type:**
+  * **Study / Education / Community / Productivity:** Warm cream base `#FDFBF7` or off-white `#FAFAF7`. Accent: warm coral `#E8896B`, sage `#7A9E7E`, or muted gold `#C9A961`.
+  * **Finance / Fintech / B2B SaaS:** Cool off-white `#F7F8FA` or pale slate `#F1F3F5`. Accent: deep navy `#1E3A5F`, forest `#2D5F3F`, or burnt orange `#D97757`.
+  * **Health / Wellness / Medical:** Soft cream `#FBF9F4` or mint-tint `#F4F8F5`. Accent: sage `#7BA098`, terracotta `#C4806B`, or sky `#7BAFD4`.
+  * **Food / F&B / Lifestyle / Travel:** Warm beige `#F5EFE6` or paper `#FAF6EE`. Accent: espresso `#5C3D2E`, persimmon `#D4612F`, or olive `#6B7A3E`.
+  * **Dev Tools / AI / Tech SaaS:** Pure neutral `#FAFAFA` or warm white `#F9F8F6`. Accent: ink black `#1A1A1A`, electric blue `#3A6FF7`, or chartreuse `#A8C66C`.
+  * **Portfolio / Agency / Creative:** Bone `#F7F4EE` or pearl `#F8F8F6`. Accent: oxblood `#6E2C2C`, deep teal `#1F4E4A`, or mustard `#C49A3A`.
+  * **Beauty / Fashion / Luxury:** Champagne `#F5EDE0` or porcelain `#FCFAF6`. Accent: rose `#C18E8E`, espresso `#3D2E26`, or gold `#B89968`.
+  * **Gaming / Music / Cinema / Nightlife:** Dark base permitted — charcoal `#0F0F12` or deep ink `#0A0C14`. Accent: amber `#E8A547`, magenta `#D14B7F`, or cyan `#5AC8D0`.
+* **Palette Selection Process:** Before writing code, classify the project into ONE category above. Use that category's base + ONE listed accent. Never invent random palettes.
 * **COLOR CONSISTENCY:** One palette for the entire page. Never mix warm and cool grays.
+* **Bright-Surface Discipline:** When base is light, body text `text-gray-700` to `text-gray-900` (not `text-gray-400` washouts). Section dividers via subtle tone shifts (`bg-white` → `bg-gray-50/60`), not dark slabs.
 
 **Rule 3: Landing Page Layout Diversification**
 * **ANTI-CENTER BIAS:** When `DESIGN_VARIANCE > 4`, centered Hero sections are BANNED. Use:

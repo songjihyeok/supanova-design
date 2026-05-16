@@ -24,9 +24,19 @@ If your generated code includes ANY of these, the design instantly fails:
 Before writing code, select ONE combination from each category:
 
 ### A. Vibe & Texture Archetypes (Pick 1)
-1. **Modern Tech (SaaS / AI / Tech):** Neutral base (light or dark per brand), subtle radial mesh gradient orbs in background. Glass-effect cards with `backdrop-blur-2xl` and tone-matched hairline borders. Wide geometric Grotesk English display font + Pretendard Korean.
-2. **Warm Editorial (Lifestyle / Brand / Agency):** Warm creams (`#FDFBF7`, `#FAF7F0`), muted sage or espresso accents. High-contrast serif English headings + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture.
-3. **Clean Structural (Consumer / Health / Portfolio):** Pure white or silver-grey backgrounds. Massive bold display typography. Floating components with ultra-diffused ambient shadows (`shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]`).
+**[DEFAULT BIAS: LIGHT.]** All archetypes default to bright surfaces. Dark mode only when project category demands it (Gaming / Music / Cinema / Luxury Nightlife) OR user explicit request.
+
+1. **Modern Tech (SaaS / AI / Dev Tools):** Light neutral base `#FAFAFA` or warm white `#F9F8F6`. Subtle radial mesh gradient orbs (low-opacity, tone-matched accent) in background. Glass-effect cards with `backdrop-blur-2xl bg-white/60` and hairline borders `ring-1 ring-black/5`. Wide geometric Grotesk English + Pretendard Korean. Text `text-gray-900`.
+2. **Warm Editorial (Lifestyle / Brand / Agency / F&B):** Warm creams (`#FDFBF7`, `#FAF7F0`, `#F5EFE6`), muted sage / espresso / persimmon accents. High-contrast serif English headings + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture. Body text `text-stone-700`.
+3. **Clean Structural (Consumer / Health / Portfolio / Study):** Off-white or silver-grey backgrounds (`#FAFAF7`, `#F7F8FA`). Massive bold display typography. Floating components with ultra-diffused ambient shadows (`shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)]`). Accent driven by project category (see supanova-taste Project Palette Map).
+4. **Dark Cinematic (Gaming / Music / Cinema / Luxury Nightlife ONLY):** Charcoal `#0F0F12` or deep ink `#0A0C14`. Use only when project explicitly fits. Amber / magenta / cyan accent. Do NOT default here.
+
+**Project → Archetype Mapping:**
+* Study / Education / Productivity → Archetype 3 (Clean Structural) w/ warm cream accent
+* Finance / B2B SaaS / Dev Tools → Archetype 1 (Modern Tech)
+* Food / Travel / Lifestyle / Fashion / Beauty / Agency → Archetype 2 (Warm Editorial)
+* Health / Wellness / Consumer / Portfolio → Archetype 3 (Clean Structural)
+* Gaming / Music / Cinema / Nightlife → Archetype 4 (Dark Cinematic)
 
 ### B. Layout Archetypes (Pick 1)
 1. **Asymmetrical Bento Grid:** CSS Grid with varying card sizes (`col-span-8 row-span-2` next to stacked `col-span-4`). Breaks visual monotony.
