@@ -21,10 +21,12 @@ If your generated code includes ANY of these, the design instantly fails:
 - **Banned Content:** AI cliches in Korean: "혁신적인", "원활한", "차세대", "한 차원 높은", "게임 체인저".
 
 ## 3. THE CREATIVE VARIANCE ENGINE
-Before writing code, select ONE combination from each category:
+Before writing code, use the brief intake from `supanova-design-engine` when available. The user's explicit theme, palette, category, and mood choices override the archetype defaults below. If the user has not provided those choices, ask first; only select a fallback archetype yourself when the user explicitly delegates the decision.
+
+After the brief is answered or delegated, select ONE combination from each category:
 
 ### A. Vibe & Texture Archetypes (Pick 1)
-**[DEFAULT BIAS: LIGHT.]** All archetypes default to bright surfaces. Dark mode only when project category demands it (Gaming / Music / Cinema / Luxury Nightlife) OR user explicit request.
+**[USER THEME FIRST. DEFAULT BIAS: LIGHT.]** Use the user's chosen surface mode first. All fallback archetypes default to bright surfaces. Dark mode only when project category demands it (Gaming / Music / Cinema / Luxury Nightlife) OR user explicit request.
 
 1. **Modern Tech (SaaS / AI / Dev Tools):** Light neutral base `#FAFAFA` or warm white `#F9F8F6`. Subtle radial mesh gradient orbs (low-opacity, tone-matched accent) in background. Glass-effect cards with `backdrop-blur-2xl bg-white/60` and hairline borders `ring-1 ring-black/5`. Wide geometric Grotesk English + Pretendard Korean. Text `text-gray-900`.
 2. **Warm Editorial (Lifestyle / Brand / Agency / F&B):** Warm creams (`#FDFBF7`, `#FAF7F0`, `#F5EFE6`), muted sage / espresso / persimmon accents. High-contrast serif English headings + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture. Body text `text-stone-700`.

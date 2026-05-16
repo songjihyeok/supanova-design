@@ -10,10 +10,26 @@ description: Supanova Landing Page Design Engine. Generates premium, conversion-
 * MOTION_INTENSITY: 6 (1=Static/No movement, 10=Cinematic/Magic Physics)
 * VISUAL_DENSITY: 3 (1=Art Gallery/Airy, 10=Pilot Cockpit/Packed Data)
 * LANDING_PURPOSE: conversion (conversion | brand | portfolio | saas | ecommerce)
-* **SURFACE_MODE: light** (light | dark) — default LIGHT. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode. Stop defaulting to dark.
-* **PROJECT_CATEGORY:** Always classify project FIRST (Study / Finance / Health / Food / Dev / Portfolio / Beauty / Entertainment) before picking palette. See Rule 2 Project Palette Map.
+* **SURFACE_MODE: ask-first** (ask-first | light | dark) — Ask the user before choosing light/dark unless they already specified it. If the user does not answer or asks you to decide, recommend light by default. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode.
+* **PROJECT_CATEGORY: ask-first** — Ask the user to confirm the category before picking palette unless the prompt already makes the category obvious. See Rule 2 Project Palette Map.
 
 **AI Instruction:** The standard baseline for all generations is strictly set to these values (8, 6, 3, conversion). Do not ask the user to edit this file. ALWAYS listen to the user: adapt these values dynamically based on what they explicitly request in their prompts. Use these baseline (or user-overridden) values as your global variables to drive the specific logic in Sections 3 through 8.
+
+### REQUIRED DESIGN BRIEF SCRIPT
+Before writing code, run this brief intake unless the user's prompt already answers every item. Ask in Korean by default, keep it concise, and wait for the user's answer. Do not silently choose a palette, theme, category, motion level, or purpose.
+
+Ask these questions as one message:
+
+1. **목적:** 전환/브랜드/포트폴리오/SaaS/이커머스 중 어떤 목적의 랜딩페이지인가요?
+2. **카테고리:** Study, Finance, Health, Food, Dev, Portfolio, Beauty, Entertainment 중 어디에 가장 가깝나요?
+3. **테마:** 밝은 테마, 어두운 테마, 시스템/자동 중 무엇을 원하시나요?
+4. **분위기:** 미니멀, 프리미엄, 에디토리얼, 테크, 럭셔리, 캐주얼 중 어떤 방향인가요?
+5. **컬러:** 원하는 베이스 컬러와 포인트 컬러가 있나요? 없으면 카테고리에 맞춰 2-3개 후보를 제안하세요.
+6. **모션:** 정적/은은함/활발함/시네마틱 중 어느 정도가 좋나요?
+7. **밀도:** 넓고 여백 많은 화면, 표준 밀도, 정보가 많은 화면 중 무엇을 선호하시나요?
+8. **참고:** 참고 사이트, 브랜드, 피해야 할 색상이나 스타일이 있나요?
+
+If the user asks for automatic generation, no-question mode, or "알아서", skip the wait and proceed with a clearly stated recommendation based on the project category. If only some answers are missing, ask only for the missing high-impact choices: theme, palette, and purpose.
 
 ## 2. DEFAULT ARCHITECTURE & CONVENTIONS
 All output is **standalone HTML** designed for direct browser rendering. No build tools, no bundlers, no frameworks.
@@ -49,8 +65,10 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 **Rule 2: Color Calibration**
 * **Constraint:** Max 1 Accent Color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients are strictly BANNED. No neon glows, no purple button effects.
-* **DEFAULT IS LIGHT [CRITICAL]:** Base surface defaults to LIGHT (off-white / warm cream / silver-grey). Dark mode is opt-in, not default. Only go dark when project category explicitly signals it (see Project Palette Map below) OR user explicitly requests dark.
-* **PROJECT PALETTE MAP — derive base + accent from project type:**
+* **USER THEME FIRST [CRITICAL]:** The user's explicit theme and palette choices override the defaults below, as long as they do not violate accessibility or banned-pattern rules. If the user provides colors, normalize them into a coherent base + one accent system instead of replacing them with the default map.
+* **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose light/dark or a palette unilaterally. Ask via the Required Design Brief Script first. Only use the defaults below when the user asks you to decide, skips the brief, or gives no palette direction.
+* **DEFAULT IS LIGHT:** When the user delegates theme choice, base surface defaults to LIGHT (off-white / warm cream / silver-grey). Dark mode is opt-in, not default. Only go dark when project category explicitly signals it (see Project Palette Map below) OR user explicitly requests dark.
+* **PROJECT PALETTE MAP — fallback suggestions by project type:**
   * **Study / Education / Community / Productivity:** Warm cream base `#FDFBF7` or off-white `#FAFAF7`. Accent: warm coral `#E8896B`, sage `#7A9E7E`, or muted gold `#C9A961`.
   * **Finance / Fintech / B2B SaaS:** Cool off-white `#F7F8FA` or pale slate `#F1F3F5`. Accent: deep navy `#1E3A5F`, forest `#2D5F3F`, or burnt orange `#D97757`.
   * **Health / Wellness / Medical:** Soft cream `#FBF9F4` or mint-tint `#F4F8F5`. Accent: sage `#7BA098`, terracotta `#C4806B`, or sky `#7BAFD4`.
@@ -59,7 +77,7 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
   * **Portfolio / Agency / Creative:** Bone `#F7F4EE` or pearl `#F8F8F6`. Accent: oxblood `#6E2C2C`, deep teal `#1F4E4A`, or mustard `#C49A3A`.
   * **Beauty / Fashion / Luxury:** Champagne `#F5EDE0` or porcelain `#FCFAF6`. Accent: rose `#C18E8E`, espresso `#3D2E26`, or gold `#B89968`.
   * **Gaming / Music / Cinema / Nightlife:** Dark base permitted — charcoal `#0F0F12` or deep ink `#0A0C14`. Accent: amber `#E8A547`, magenta `#D14B7F`, or cyan `#5AC8D0`.
-* **Palette Selection Process:** Before writing code, classify the project into ONE category above. Use that category's base + ONE listed accent. Never invent random palettes.
+* **Palette Selection Process:** Before writing code, collect or infer the user's desired category, theme, base color, and accent color. If the user supplied colors, use them after checking contrast and saturation. If the user did not supply colors, propose 2-3 palette options from the map and ask them to pick one. Only pick a single fallback palette yourself when the user explicitly says to decide for them.
 * **COLOR CONSISTENCY:** One palette for the entire page. Never mix warm and cool grays.
 * **Bright-Surface Discipline:** When base is light, body text `text-gray-700` to `text-gray-900` (not `text-gray-400` washouts). Section dividers via subtle tone shifts (`bg-white` → `bg-gray-50/60`), not dark slabs.
 
