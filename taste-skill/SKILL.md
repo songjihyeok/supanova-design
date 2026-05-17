@@ -10,10 +10,13 @@ description: Supanova Landing Page Design Engine. Generates premium, conversion-
 * MOTION_INTENSITY: 6 (1=Static/No movement, 10=Cinematic/Magic Physics)
 * VISUAL_DENSITY: 3 (1=Art Gallery/Airy, 10=Pilot Cockpit/Packed Data)
 * LANDING_PURPOSE: conversion (conversion | brand | portfolio | saas | ecommerce)
-* **SURFACE_MODE: ask-first** (ask-first | light | dark) — Ask user before choosing light/dark unless they already specified it. If user does not answer or asks you to decide, recommend light by default. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode.
+* **SURFACE_MODE: light** (light | dark | ask-first) — Default light. Dark ONLY when user explicitly types "dark mode" / "어두운 테마" / "다크" OR project category is Gaming / Music / Cinema / Luxury Nightlife. Ambiguity, silence, "알아서", "추천", or anything short of explicit dark request → light. Never pick dark to "look cool" or "look premium".
+* **BASE_LUMINANCE: high** (high | mid | low) — Light mode surfaces must be genuinely bright. Base `#FAFAF7`–`#FFFFFF` range, never `#0F0F12`. Cards on light base use white or warmer-than-base tints, never dark slabs unless dark mode is active.
 * **PROJECT_CATEGORY: ask-first** — Ask user to confirm category before picking palette unless prompt already makes category obvious. See Rule 2 Project Palette Map.
 
 **AI Instruction:** Baseline strictly set to these values (8, 6, 3, conversion). Do not ask user to edit this file. ALWAYS listen to user: adapt these values dynamically based on what they explicitly request. Use these baseline (or user-overridden) values as global variables to drive specific logic in Sections 3 through 8.
+
+**SURFACE DECISION RULE [CRITICAL]:** Light is default. Go dark only when one of these is true: (1) user message contains "dark", "다크", "어두운", "검정", "블랙" applied to theme/배경; (2) project category is Gaming, Music, Cinema, or Luxury Nightlife. Otherwise — including "premium", "luxury", "cinematic", "고급", "프리미엄", "시크" — stay LIGHT. Premium ≠ dark. When in doubt, choose the brightest archetype that fits category.
 
 ### REQUIRED DESIGN BRIEF SCRIPT
 Before writing code, run this brief intake unless user prompt already answers every item. Ask in Korean by default, keep concise, wait for user answer. Do not silently choose palette, theme, category, motion level, or purpose.
@@ -151,8 +154,9 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 * **Constraint:** Max 1 accent color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients BANNED. No neon glows, no purple button effects.
 * **USER THEME FIRST [CRITICAL]:** User's explicit theme and palette choices override defaults below as long as they don't violate accessibility or banned-pattern rules. If user provides colors, normalize into coherent base + one accent.
-* **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose light/dark or palette unilaterally. Ask via Design Brief Script first. Use defaults below only when user asks you to decide.
-* **DEFAULT IS LIGHT:** When user delegates theme, base defaults to LIGHT. Dark is opt-in. Only go dark when project category explicitly signals it OR user explicitly requests.
+* **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose palette unilaterally. Ask via Design Brief Script first for palette/accent. Theme (light/dark) defaults to LIGHT without asking unless user delegated full control.
+* **DEFAULT IS LIGHT [HARD RULE]:** Base defaults to LIGHT. Dark is opt-in via explicit keyword ("dark", "다크", "어두운") OR category in {Gaming, Music, Cinema, Nightlife}. "Premium", "luxury", "cinematic", "minimal", "editorial" do NOT trigger dark. When the prompt is silent on theme, pick LIGHT — never charcoal/ink base.
+* **CARD/SURFACE BRIGHTNESS [HARD RULE]:** On light theme, card backgrounds must be `#FFFFFF`, `#FAFAF7`, `#FBF9F4`, or other near-white from palette map. NEVER use `#0F0F12`, `#1A1A1A`, charcoal, or near-black card surfaces on a light page. Section dividers via subtle tone shifts only.
 * **Token Wiring:** Encode the chosen palette as CSS variables inside `@theme` (e.g. `--color-surface`, `--color-surface-muted`, `--color-ink`, `--color-ink-muted`, `--color-accent`). Reference them as `bg-surface`, `text-ink`, `bg-accent`, etc. — never hardcode hex inside JSX.
 * **PROJECT PALETTE MAP — fallback suggestions by project type:**
   * **Study / Education / Community / Productivity:** Warm cream `#FDFBF7` or off-white `#FAFAF7`. Accent: warm coral `#E8896B`, sage `#7A9E7E`, muted gold `#C9A961`.

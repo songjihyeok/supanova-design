@@ -32,14 +32,14 @@ Before writing code, use the brief intake from `supanova-design-engine` when ava
 After brief is answered or delegated, select ONE from each category:
 
 ### A. Vibe & Texture Archetypes (Pick 1)
-**[USER THEME FIRST. DEFAULT BIAS: LIGHT.]** Use user's chosen surface mode first. Fallback archetypes default to bright surfaces. Dark mode only when project category demands (Gaming / Music / Cinema / Luxury Nightlife) OR user explicit request.
+**[LIGHT IS DEFAULT — HARD RULE.]** Pick from archetypes 1, 2, or 3 by default. Archetype 4 (Dark Cinematic) is **locked** unless: (a) user explicitly typed "dark"/"다크"/"어두운"/"검정" on theme, OR (b) project category is Gaming / Music / Cinema / Luxury Nightlife. Words like "premium", "luxury", "cinematic", "고급", "프리미엄", "시크", "모던" do **NOT** unlock archetype 4. When ambiguous, fall to Archetype 3 (Clean Structural). Never produce a charcoal/near-black hero card on a light page.
 
 Each archetype is implemented as a set of `@theme` tokens in `globals.css` plus matching Tailwind utility patterns in section components.
 
 1. **Modern Tech (SaaS / AI / Dev Tools):** Light neutral base `oklch(0.98 0.005 90)` (`#FAFAFA`) or warm white `#F9F8F6`. Subtle radial mesh gradient orbs (low-opacity, tone-matched accent) in a `<MeshBackground />` server component. Glass-effect cards with `backdrop-blur-2xl bg-white/60` and hairline `ring-1 ring-black/5`. Wide geometric Grotesk English (`Geist` via `next/font/google`) + Pretendard Korean. Text `text-gray-900`.
 2. **Warm Editorial (Lifestyle / Brand / Agency / F&B):** Warm creams (`#FDFBF7`, `#FAF7F0`, `#F5EFE6`), muted sage / espresso / persimmon accents. High-contrast serif English headings (`Cabinet Grotesk` via `next/font/local`) + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture — one fixed div in `layout.tsx`. Body text `text-stone-700`.
 3. **Clean Structural (Consumer / Health / Portfolio / Study):** Off-white or silver-grey backgrounds (`#FAFAF7`, `#F7F8FA`). Massive bold display typography. Floating components with ultra-diffused ambient shadows tokenized as `--shadow-supanova: 0 20px 60px -15px rgb(0 0 0 / 0.05)`. Accent driven by project category (see Project Palette Map in `supanova-design-engine`).
-4. **Dark Cinematic (Gaming / Music / Cinema / Luxury Nightlife ONLY):** Charcoal `#0F0F12` or deep ink `#0A0C14`. Use only when project explicitly fits. Amber / magenta / cyan accent. Do NOT default here.
+4. **Dark Cinematic (Gaming / Music / Cinema / Luxury Nightlife ONLY — gated):** Charcoal `#0F0F12` or deep ink `#0A0C14`. **Gate:** before selecting this archetype, confirm user message contains an explicit dark-theme keyword OR project category is one of the four above. If gate fails, pick Archetype 3. Amber / magenta / cyan accent. Do NOT default here — including for "premium", "luxury", or "AI" framing.
 
 **Project → Archetype Mapping:**
 * Study / Education / Productivity → Archetype 3 w/ warm cream accent

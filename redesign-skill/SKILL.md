@@ -47,6 +47,7 @@ Upgrade the foundation when these red flags appear:
 
 ### Color and Surfaces
 
+- **Charcoal / near-black surfaces on a light project.** If page is light-themed, NO card or hero block may use `#0F0F12`, `#1A1A1A`, `#0A0C14`, or `bg-black`. Replace with `#FFFFFF`, `#FAFAF7`, `#FBF9F4`, or palette-matched warm white. Dark slabs only when whole page is intentionally dark (Gaming/Music/Cinema/Nightlife or user-requested).
 - **Pure `#000000` or `#ffffff` background.** Replace with slightly tinted neutrals in `@theme` palette tokens.
 - **Oversaturated accents.** Keep saturation < 80%. Express palette in OKLCH inside `@theme`.
 - **Multiple accent colors competing.** Pick ONE. Remove the rest from tokens AND from JSX.
