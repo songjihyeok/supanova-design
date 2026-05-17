@@ -1,6 +1,6 @@
 ---
 name: supanova-design-engine
-description: Supanova Landing Page Design Engine. Generates premium, conversion-optimized landing pages using pure HTML + Tailwind CSS (CDN). Overrides default LLM biases toward generic templates. Enforces metric-based design rules, Korean typography standards, and hardware-accelerated motion for standalone HTML output.
+description: Supanova Landing Page Design Engine. Generates premium, conversion-optimized landing pages on Next.js App Router + Tailwind CSS v4 + shadcn/ui. Overrides default LLM biases toward generic templates. Enforces metric-based design rules, Korean typography standards, and hardware-accelerated motion for production-grade Next.js output.
 ---
 
 # Supanova Design Engine
@@ -10,13 +10,13 @@ description: Supanova Landing Page Design Engine. Generates premium, conversion-
 * MOTION_INTENSITY: 6 (1=Static/No movement, 10=Cinematic/Magic Physics)
 * VISUAL_DENSITY: 3 (1=Art Gallery/Airy, 10=Pilot Cockpit/Packed Data)
 * LANDING_PURPOSE: conversion (conversion | brand | portfolio | saas | ecommerce)
-* **SURFACE_MODE: ask-first** (ask-first | light | dark) — Ask the user before choosing light/dark unless they already specified it. If the user does not answer or asks you to decide, recommend light by default. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode.
-* **PROJECT_CATEGORY: ask-first** — Ask the user to confirm the category before picking palette unless the prompt already makes the category obvious. See Rule 2 Project Palette Map.
+* **SURFACE_MODE: ask-first** (ask-first | light | dark) — Ask user before choosing light/dark unless they already specified it. If user does not answer or asks you to decide, recommend light by default. Switch to dark ONLY for Gaming / Music / Cinema / Luxury Nightlife projects, or when user explicitly requests dark mode.
+* **PROJECT_CATEGORY: ask-first** — Ask user to confirm category before picking palette unless prompt already makes category obvious. See Rule 2 Project Palette Map.
 
-**AI Instruction:** The standard baseline for all generations is strictly set to these values (8, 6, 3, conversion). Do not ask the user to edit this file. ALWAYS listen to the user: adapt these values dynamically based on what they explicitly request in their prompts. Use these baseline (or user-overridden) values as your global variables to drive the specific logic in Sections 3 through 8.
+**AI Instruction:** Baseline strictly set to these values (8, 6, 3, conversion). Do not ask user to edit this file. ALWAYS listen to user: adapt these values dynamically based on what they explicitly request. Use these baseline (or user-overridden) values as global variables to drive specific logic in Sections 3 through 8.
 
 ### REQUIRED DESIGN BRIEF SCRIPT
-Before writing code, run this brief intake unless the user's prompt already answers every item. Ask in Korean by default, keep it concise, and wait for the user's answer. Do not silently choose a palette, theme, category, motion level, or purpose.
+Before writing code, run this brief intake unless user prompt already answers every item. Ask in Korean by default, keep concise, wait for user answer. Do not silently choose palette, theme, category, motion level, or purpose.
 
 Ask these questions as one message:
 
@@ -29,126 +29,214 @@ Ask these questions as one message:
 7. **밀도:** 넓고 여백 많은 화면, 표준 밀도, 정보가 많은 화면 중 무엇을 선호하시나요?
 8. **참고:** 참고 사이트, 브랜드, 피해야 할 색상이나 스타일이 있나요?
 
-If the user asks for automatic generation, no-question mode, or "알아서", skip the wait and proceed with a clearly stated recommendation based on the project category. If only some answers are missing, ask only for the missing high-impact choices: theme, palette, and purpose.
+If user asks for automatic generation, no-question mode, or "알아서", skip wait and proceed with clearly stated recommendation based on project category. If only some answers missing, ask only for missing high-impact choices: theme, palette, purpose.
 
 ## 2. DEFAULT ARCHITECTURE & CONVENTIONS
-All output is **standalone HTML** designed for direct browser rendering. No build tools, no bundlers, no frameworks.
 
-* **Output Format:** Single HTML file with all styles and scripts inline. The page must work by simply opening the file in a browser.
-* **Styling:** Tailwind CSS via CDN (`<script src="https://cdn.tailwindcss.com"></script>`). Use the `tailwind.config` script block for custom theme extensions (colors, fonts, spacing).
+All output is a **Next.js 15 App Router project** designed for production deployment.
+
+### File Layout
+```
+app/
+  layout.tsx          # <html lang="ko">, fonts, metadata, providers
+  page.tsx            # composes section components
+  globals.css         # Tailwind v4 import + @theme tokens + custom keyframes
+components/
+  sections/
+    nav.tsx
+    hero.tsx
+    social-proof.tsx
+    features.tsx
+    testimonials.tsx
+    cta.tsx
+    footer.tsx
+  ui/                 # shadcn/ui components (button, card, badge, ...)
+lib/
+  utils.ts            # cn() helper from shadcn
+public/
+  fonts/              # Pretendard self-hosted (optional)
+```
+
+### Stack — Non-Negotiable
+* **Framework:** Next.js 15 App Router, React 19, TypeScript strict.
+* **Styling:** Tailwind CSS v4 via PostCSS plugin (`@tailwindcss/postcss`). NO Tailwind CDN script. NO `tailwind.config.js` content array (v4 is config-less by default). Use `@theme` block inside `app/globals.css` to extend tokens.
+* **Component Primitives:** shadcn/ui — install only what is used (`npx shadcn@latest add button card badge separator scroll-area`). Components live in `components/ui/`.
 * **Typography — Korean First:**
-  * **Primary Font:** `Pretendard` via CDN (`https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css`). This is NON-NEGOTIABLE for Korean text rendering.
-  * **English Display Font:** Pair with `Geist`, `Outfit`, `Cabinet Grotesk`, or `Satoshi` for English headlines. Load via Google Fonts CDN or self-hosted link.
-  * **Font Stack:** `font-family: 'Pretendard', 'Geist', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;`
-* **Icons:** Use Iconify with Solar icon set exclusively. Load via `<script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>`. Usage: `<iconify-icon icon="solar:arrow-right-linear"></iconify-icon>`.
-* **Images:** Use `https://picsum.photos/seed/{descriptive_name}/{width}/{height}` for all placeholder images. NEVER use Unsplash URLs (they break). For avatars, use `https://i.pravatar.cc/150?u={unique_name}`.
-* **Animation Library:** For `MOTION_INTENSITY > 5`, include `<script src="https://unpkg.com/motion@latest/dist/motion.js"></script>` (Motion One — lightweight, standalone). For simpler animations, use pure CSS `@keyframes` and Tailwind's `animate-` utilities.
-* **ANTI-EMOJI POLICY [CRITICAL]:** NEVER use emojis in markup or visible text content. Replace with Iconify Solar icons or clean SVG primitives.
+  * **Primary Font:** `Pretendard` loaded via `next/font/local` from `public/fonts/PretendardVariable.woff2`, exposed as CSS variable `--font-pretendard`. NON-NEGOTIABLE.
+  * **English Display Font:** Pair with `Geist`, `Outfit`, `Cabinet Grotesk`, or `Satoshi` via `next/font/google` (Geist/Outfit) or `next/font/local` (Cabinet/Satoshi). Expose as `--font-display`.
+  * **Tailwind v4 token:** Map in `@theme` block: `--font-sans: var(--font-pretendard), 'Geist', system-ui, sans-serif;`
+* **Icons:** `@iconify/react` with Solar set exclusively. Usage: `import { Icon } from "@iconify/react"; <Icon icon="solar:arrow-right-linear" />`. NO web-component `<iconify-icon>` — it requires extra runtime registration in React.
+* **Images:** `next/image` for all images. For placeholders use `https://picsum.photos/seed/{name}/{w}/{h}` (add `picsum.photos` to `next.config.ts` `images.remotePatterns`). For avatars `https://i.pravatar.cc/150?u={name}`. NEVER Unsplash URLs.
+* **Animation:** `motion/react` (the React build of Motion) for `MOTION_INTENSITY > 5`. Use `<motion.div>`, `useInView`, `useScroll`. For static or trivial animations use Tailwind `animate-*` utilities and `@keyframes` declared in `globals.css`.
+* **ANTI-EMOJI POLICY [CRITICAL]:** NEVER use emojis in JSX or visible text. Replace with `<Icon icon="solar:...">` or shadcn icon primitives.
 * **Responsiveness:**
-  * Standardize breakpoints (`sm:`, `md:`, `lg:`, `xl:`).
-  * Contain page layouts using `max-w-7xl mx-auto px-4 sm:px-6 lg:px-8`.
-  * **Viewport Stability [CRITICAL]:** NEVER use `h-screen`. ALWAYS use `min-h-[100dvh]` to prevent layout jumping on iOS Safari.
-  * **Grid over Flex-Math:** Use CSS Grid (`grid grid-cols-1 md:grid-cols-3 gap-6`) instead of complex flexbox percentage calculations.
-* **Language:** Default content language is **Korean**. All placeholder text, headings, descriptions, and CTAs must be written in natural, professional Korean — not translated-sounding text.
+  * Tailwind breakpoints (`sm:`, `md:`, `lg:`, `xl:`).
+  * Container: `<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">`.
+  * **Viewport Stability [CRITICAL]:** NEVER use `h-screen`. ALWAYS `min-h-[100dvh]` to prevent iOS Safari layout jump.
+  * **Grid over Flex-Math:** Use CSS Grid (`grid grid-cols-1 md:grid-cols-3 gap-6`) over complex flex percentages.
+* **Language:** Default content language **Korean**. All placeholder text, headings, descriptions, CTAs in natural professional Korean — not translated.
+* **Server vs Client Components:** Default to Server Components. Mark `"use client"` ONLY when a section uses motion hooks, state, refs, IntersectionObserver, or browser-only APIs. Keep client islands as small as possible — extract interactive bits (e.g. `<HeroAnimation />`) and import them into a server-rendered section.
+
+### Required globals.css Skeleton
+```css
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-pretendard), "Geist", system-ui, sans-serif;
+  --font-display: var(--font-display), "Geist", system-ui, sans-serif;
+  --color-surface: oklch(0.99 0.005 90);
+  --color-ink: oklch(0.18 0.02 270);
+  --color-accent: oklch(0.7 0.15 30);
+  --ease-supanova: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); word-break: keep-all; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(2rem); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-15px); }
+}
+```
+
+### Required layout.tsx Skeleton
+```tsx
+import type { Metadata } from "next";
+import localFont from "next/font/local";
+import { Geist } from "next/font/google";
+import "./globals.css";
+
+const pretendard = localFont({
+  src: "../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  display: "swap",
+  weight: "45 920",
+});
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-display" });
+
+export const metadata: Metadata = {
+  title: "페이지 제목",
+  description: "페이지 설명",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ko" className={`${pretendard.variable} ${geist.variable}`}>
+      <body className="bg-surface text-ink antialiased">{children}</body>
+    </html>
+  );
+}
+```
 
 ## 3. DESIGN ENGINEERING DIRECTIVES (Bias Correction)
 LLMs have statistical biases toward specific UI cliches. These rules produce premium landing pages:
 
 **Rule 1: Deterministic Typography**
-* **Korean Headlines:** `text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight font-bold`. Pretendard handles Korean beautifully at these sizes.
-  * **CRITICAL:** Korean text requires `leading-tight` to `leading-snug` (NOT `leading-none`). Korean characters need more vertical breathing room than Latin text.
-  * **Word Breaking:** Always add `word-break: keep-all` (`break-keep-all` in Tailwind) to Korean text blocks to prevent mid-word line breaks.
-* **English Display Text:** Use `tracking-tighter leading-none` for maximum impact with Latin fonts.
+* **Korean Headlines:** `text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight font-bold`. Pretendard renders Korean beautifully at these sizes.
+  * **CRITICAL:** Korean text needs `leading-tight` to `leading-snug` (NOT `leading-none`). Korean glyphs need more vertical breathing room than Latin.
+  * **Word Breaking:** Add `break-keep` to Korean text blocks to prevent mid-word breaks. Already set globally on `body` via `word-break: keep-all`, but reassert at the block level when needed.
+* **English Display Text:** `tracking-tighter leading-none` for max impact with Latin fonts.
 * **Body/Paragraphs:** `text-base md:text-lg text-gray-600 leading-relaxed max-w-[65ch]`.
-* **ANTI-SLOP FONTS:** `Inter` is BANNED. `Noto Sans KR` is BANNED (use Pretendard instead — it's the modern Korean standard). `Roboto`, `Arial`, `Open Sans` are all BANNED.
+* **ANTI-SLOP FONTS:** `Inter` BANNED. `Noto Sans KR` BANNED (use Pretendard — modern Korean standard). `Roboto`, `Arial`, `Open Sans` BANNED.
 
 **Rule 2: Color Calibration**
-* **Constraint:** Max 1 Accent Color per page. Saturation < 80%.
-* **THE LILA BAN:** Purple/Blue "AI" gradients are strictly BANNED. No neon glows, no purple button effects.
-* **USER THEME FIRST [CRITICAL]:** The user's explicit theme and palette choices override the defaults below, as long as they do not violate accessibility or banned-pattern rules. If the user provides colors, normalize them into a coherent base + one accent system instead of replacing them with the default map.
-* **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose light/dark or a palette unilaterally. Ask via the Required Design Brief Script first. Only use the defaults below when the user asks you to decide, skips the brief, or gives no palette direction.
-* **DEFAULT IS LIGHT:** When the user delegates theme choice, base surface defaults to LIGHT (off-white / warm cream / silver-grey). Dark mode is opt-in, not default. Only go dark when project category explicitly signals it (see Project Palette Map below) OR user explicitly requests dark.
+* **Constraint:** Max 1 accent color per page. Saturation < 80%.
+* **THE LILA BAN:** Purple/Blue "AI" gradients BANNED. No neon glows, no purple button effects.
+* **USER THEME FIRST [CRITICAL]:** User's explicit theme and palette choices override defaults below as long as they don't violate accessibility or banned-pattern rules. If user provides colors, normalize into coherent base + one accent.
+* **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose light/dark or palette unilaterally. Ask via Design Brief Script first. Use defaults below only when user asks you to decide.
+* **DEFAULT IS LIGHT:** When user delegates theme, base defaults to LIGHT. Dark is opt-in. Only go dark when project category explicitly signals it OR user explicitly requests.
+* **Token Wiring:** Encode the chosen palette as CSS variables inside `@theme` (e.g. `--color-surface`, `--color-surface-muted`, `--color-ink`, `--color-ink-muted`, `--color-accent`). Reference them as `bg-surface`, `text-ink`, `bg-accent`, etc. — never hardcode hex inside JSX.
 * **PROJECT PALETTE MAP — fallback suggestions by project type:**
-  * **Study / Education / Community / Productivity:** Warm cream base `#FDFBF7` or off-white `#FAFAF7`. Accent: warm coral `#E8896B`, sage `#7A9E7E`, or muted gold `#C9A961`.
-  * **Finance / Fintech / B2B SaaS:** Cool off-white `#F7F8FA` or pale slate `#F1F3F5`. Accent: deep navy `#1E3A5F`, forest `#2D5F3F`, or burnt orange `#D97757`.
-  * **Health / Wellness / Medical:** Soft cream `#FBF9F4` or mint-tint `#F4F8F5`. Accent: sage `#7BA098`, terracotta `#C4806B`, or sky `#7BAFD4`.
-  * **Food / F&B / Lifestyle / Travel:** Warm beige `#F5EFE6` or paper `#FAF6EE`. Accent: espresso `#5C3D2E`, persimmon `#D4612F`, or olive `#6B7A3E`.
-  * **Dev Tools / AI / Tech SaaS:** Pure neutral `#FAFAFA` or warm white `#F9F8F6`. Accent: ink black `#1A1A1A`, electric blue `#3A6FF7`, or chartreuse `#A8C66C`.
-  * **Portfolio / Agency / Creative:** Bone `#F7F4EE` or pearl `#F8F8F6`. Accent: oxblood `#6E2C2C`, deep teal `#1F4E4A`, or mustard `#C49A3A`.
-  * **Beauty / Fashion / Luxury:** Champagne `#F5EDE0` or porcelain `#FCFAF6`. Accent: rose `#C18E8E`, espresso `#3D2E26`, or gold `#B89968`.
-  * **Gaming / Music / Cinema / Nightlife:** Dark base permitted — charcoal `#0F0F12` or deep ink `#0A0C14`. Accent: amber `#E8A547`, magenta `#D14B7F`, or cyan `#5AC8D0`.
-* **Palette Selection Process:** Before writing code, collect or infer the user's desired category, theme, base color, and accent color. If the user supplied colors, use them after checking contrast and saturation. If the user did not supply colors, propose 2-3 palette options from the map and ask them to pick one. Only pick a single fallback palette yourself when the user explicitly says to decide for them.
-* **COLOR CONSISTENCY:** One palette for the entire page. Never mix warm and cool grays.
+  * **Study / Education / Community / Productivity:** Warm cream `#FDFBF7` or off-white `#FAFAF7`. Accent: warm coral `#E8896B`, sage `#7A9E7E`, muted gold `#C9A961`.
+  * **Finance / Fintech / B2B SaaS:** Cool off-white `#F7F8FA` or pale slate `#F1F3F5`. Accent: deep navy `#1E3A5F`, forest `#2D5F3F`, burnt orange `#D97757`.
+  * **Health / Wellness / Medical:** Soft cream `#FBF9F4` or mint-tint `#F4F8F5`. Accent: sage `#7BA098`, terracotta `#C4806B`, sky `#7BAFD4`.
+  * **Food / F&B / Lifestyle / Travel:** Warm beige `#F5EFE6` or paper `#FAF6EE`. Accent: espresso `#5C3D2E`, persimmon `#D4612F`, olive `#6B7A3E`.
+  * **Dev Tools / AI / Tech SaaS:** Pure neutral `#FAFAFA` or warm white `#F9F8F6`. Accent: ink black `#1A1A1A`, electric blue `#3A6FF7`, chartreuse `#A8C66C`.
+  * **Portfolio / Agency / Creative:** Bone `#F7F4EE` or pearl `#F8F8F6`. Accent: oxblood `#6E2C2C`, deep teal `#1F4E4A`, mustard `#C49A3A`.
+  * **Beauty / Fashion / Luxury:** Champagne `#F5EDE0` or porcelain `#FCFAF6`. Accent: rose `#C18E8E`, espresso `#3D2E26`, gold `#B89968`.
+  * **Gaming / Music / Cinema / Nightlife:** Dark base permitted — charcoal `#0F0F12` or deep ink `#0A0C14`. Accent: amber `#E8A547`, magenta `#D14B7F`, cyan `#5AC8D0`.
+* **Palette Selection Process:** Collect or infer category, theme, base color, accent before writing code. If user supplied colors, use them after checking contrast and saturation. If not supplied, propose 2-3 options from map and ask. Only pick single fallback yourself when user explicitly delegates.
+* **COLOR CONSISTENCY:** One palette for entire page. Never mix warm and cool grays.
 * **Bright-Surface Discipline:** When base is light, body text `text-gray-700` to `text-gray-900` (not `text-gray-400` washouts). Section dividers via subtle tone shifts (`bg-white` → `bg-gray-50/60`), not dark slabs.
 
 **Rule 3: Landing Page Layout Diversification**
-* **ANTI-CENTER BIAS:** When `DESIGN_VARIANCE > 4`, centered Hero sections are BANNED. Use:
+* **ANTI-CENTER BIAS:** When `DESIGN_VARIANCE > 4`, centered Hero sections BANNED. Use:
   * **Split Screen** (50/50 text + visual)
   * **Left-aligned content / Right-aligned asset**
   * **Asymmetric white-space** with dramatic negative space
   * **Full-bleed image with overlaid text**
-* **Section Flow:** A landing page is NOT a stack of identical sections. Vary each section's layout dramatically:
+* **Section Flow:** Landing page is NOT a stack of identical sections. Vary each section's layout dramatically:
   * Hero → Features (Bento Grid) → Social Proof (Testimonial Masonry) → CTA (Full-bleed)
-  * Every adjacent section must use a DIFFERENT layout pattern.
+  * Adjacent sections MUST use DIFFERENT layout patterns.
+* **Component Boundaries:** Each section is its own file under `components/sections/`. Compose them inside `app/page.tsx`. This keeps reviewability high and lets the user swap sections.
 
 **Rule 4: Materiality and Depth**
-* Use cards ONLY when elevation communicates hierarchy. When shadows are needed, tint them to the background hue.
+* Use cards (shadcn `<Card>` or custom Double-Bezel) ONLY when elevation communicates hierarchy. When shadows are needed, tint them to the background hue.
 * **Glass Effects:** Go beyond `backdrop-blur`. Add `border border-white/10` and `shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]` for physical edge refraction.
-* **Grain Texture:** Add a subtle noise overlay via fixed `pointer-events-none` pseudo-element for organic, non-digital feel.
+* **Grain Texture:** Add subtle noise overlay via fixed `pointer-events-none` div rendered once in `layout.tsx`, not per-section.
 
 **Rule 5: Conversion-Driven UI States**
-* **CTA Buttons:** Must have hover (`scale-[1.02]`), active (`scale-[0.98]`), and focus states. Minimum size `px-8 py-4 text-lg`.
-* **Social Proof:** Numbers must feel organic (`47,200+` not `50,000+`). Use real-sounding Korean names and companies.
+* **CTA Buttons:** Built on shadcn `<Button>` with custom variant `supanova` defined in `components/ui/button.tsx`. Must have hover (`scale-[1.02]`), active (`scale-[0.98]`), focus-visible ring. Minimum `px-8 py-4 text-lg`.
+* **Social Proof:** Numbers must feel organic (`47,200+` not `50,000+`). Real-sounding Korean names and companies.
 * **Trust Signals:** Include at least one of: client logos, testimonial quotes, metrics bar, press mentions.
-* **Urgency Elements (if conversion):** Subtle countdown, limited spots indicator, or "currently viewing" social proof.
+* **Urgency Elements (if conversion):** Subtle countdown, limited spots indicator, or "currently viewing" social proof — implemented as client component if dynamic.
 
 **Rule 6: Korean Content Standards**
-* **NO Translated Korean:** Write native, natural Korean. "지금 시작하세요" not "시작을 하세요 지금".
-* **Honorifics:** Use 합니다/하세요 form consistently. Never mix 반말 and 존댓말.
-* **CTA Copy:** Direct, action-oriented: "무료로 시작하기", "3분만에 만들어보기", "지금 바로 체험하기"
-* **Avoid Korean AI Cliches:** "혁신적인", "획기적인", "차세대" are BANNED. Use concrete, specific language.
+* **NO Translated Korean:** Native, natural Korean. "지금 시작하세요" not "시작을 하세요 지금".
+* **Honorifics:** 합니다/하세요 form consistently. Never mix 반말 and 존댓말.
+* **CTA Copy:** Direct, action-oriented: "무료로 시작하기", "3분만에 만들어보기", "지금 바로 체험하기".
+* **Avoid Korean AI Cliches:** "혁신적인", "획기적인", "차세대" BANNED. Use concrete, specific language.
 
 ## 4. CREATIVE PROACTIVITY (Anti-Generic Implementation)
-Systematically implement these high-end patterns as your baseline:
+Systematically implement these high-end patterns as baseline:
 
-* **"Liquid Glass" Refraction:** Beyond `backdrop-blur-xl`. Layer `border border-white/10`, `shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]`, and a subtle `bg-white/5` for true depth.
-* **Magnetic CTA Buttons:** Use CSS `transform` on hover with `transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1)`. Add directional arrow icons that shift on hover.
-* **Staggered Reveals:** Sections fade in sequentially using CSS `animation-delay` cascades. Use `@keyframes fadeInUp { from { opacity: 0; transform: translateY(2rem); } to { opacity: 1; transform: translateY(0); } }` with `animation-delay: calc(var(--index) * 100ms)`.
-* **Floating Elements:** Subtle infinite float animations on decorative elements: `@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }`.
-* **Gradient Mesh Backgrounds:** Use multiple `radial-gradient` layers for organic, blob-like ambient backgrounds instead of flat solid colors.
-* **Scroll-Triggered Animations (MOTION_INTENSITY > 6):** Use `IntersectionObserver` for viewport-based reveals. NEVER use `window.addEventListener('scroll')`.
+* **"Liquid Glass" Refraction:** Beyond `backdrop-blur-xl`. Layer `border border-white/10`, `shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]`, subtle `bg-white/5`.
+* **Magnetic CTA Buttons:** Tailwind `transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]` with hover translate on the nested arrow icon. For real magnetic effect use `motion/react` `useMotionValue` + `useTransform` inside a client component.
+* **Staggered Reveals:** Use `motion/react` `<motion.div initial={{opacity:0, y:32}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay: i*0.08, ease:[0.16,1,0.3,1]}}>` pattern. Wrap section as client component when needed.
+* **Floating Elements:** `animate-[float_6s_ease-in-out_infinite]` referencing the `@keyframes float` declared in `globals.css`.
+* **Gradient Mesh Backgrounds:** Multiple `radial-gradient` layers via Tailwind arbitrary values or a dedicated `<MeshBackground />` component.
+* **Scroll-Triggered Animations (MOTION_INTENSITY > 6):** `useInView` from `motion/react`. NEVER `window.addEventListener('scroll')`.
 
 ## 5. PERFORMANCE GUARDRAILS
-* **DOM Cost:** Grain/noise filters go on `position: fixed; inset: 0; z-index: 50; pointer-events: none` elements ONLY. Never on scrolling containers.
-* **Hardware Acceleration:** Animate ONLY `transform` and `opacity`. Never animate `top`, `left`, `width`, `height`.
-* **Image Optimization:** Use `loading="lazy"` on all images below the fold. Use `decoding="async"` on all images.
-* **CDN Weight:** Total external CDN scripts should not exceed 5. Tailwind CDN + Iconify + (optional) Motion One is the maximum baseline.
-* **Z-Index Restraint:** Use z-indexes only for: sticky nav (`z-40`), overlays (`z-50`), noise texture (`z-[60]`).
+* **DOM Cost:** Grain/noise filter goes on ONE `fixed inset-0 pointer-events-none z-[60]` element in `layout.tsx`. Never on scrolling containers.
+* **Hardware Acceleration:** Animate ONLY `transform` and `opacity`. Never `top`, `left`, `width`, `height`.
+* **Image Optimization:** `next/image` handles `loading="lazy"` and `decoding="async"` automatically; always pass `width`, `height`, and `alt`. Mark only the hero image as `priority`.
+* **Bundle Discipline:** Don't pull a full UI library. Only shadcn primitives you actually render. `@iconify/react` tree-shakes per icon import — fine.
+* **Z-Index Restraint:** sticky nav (`z-40`), overlays (`z-50`), noise texture (`z-[60]`).
+* **`"use client"` Discipline:** Don't mark the whole `page.tsx` as client. Keep server boundary high; push client wrappers down to leaf interactive components.
 
 ## 6. LANDING PAGE SECTION LIBRARY
-Do not default to generic layouts. Pull from this library of premium landing page patterns:
+Pull from this library of premium landing page patterns. Each becomes one file under `components/sections/`:
 
 ### Hero Sections
 * **Split Hero:** 60/40 text-to-visual split. Text left, product screenshot or 3D render right. Background gradient bleed.
-* **Full-Bleed Media Hero:** Full-screen image/video with overlaid text. Gradient overlay (tone matched to page palette) for legibility. CTA floating at bottom-center.
-* **Minimal Statement Hero:** Massive typography (text-7xl+) with extreme white-space. Single-line value proposition. Floating CTA pill.
-* **Interactive Hero:** Typewriter effect cycling through use cases. "AI로 __ 만들기" with rotating words.
+* **Full-Bleed Media Hero:** Full-screen `<Image fill />` or video with overlaid text. Gradient overlay (tone matched) for legibility. CTA floating at bottom-center.
+* **Minimal Statement Hero:** Massive typography (`text-7xl+`) with extreme white-space. Single-line value prop. Floating CTA pill.
+* **Interactive Hero:** Typewriter effect cycling use cases. "AI로 __ 만들기" with rotating words — client component using `motion/react` or simple `setInterval` in `useEffect`.
 
 ### Feature Sections
-* **Bento Grid:** Asymmetric grid (2fr 1fr 1fr pattern) with different card heights. Each card contains an icon, title, short description.
-* **Zig-Zag Alternating:** Image-left/text-right → text-left/image-right pattern. Never 3-column equal cards.
+* **Bento Grid:** Asymmetric CSS Grid (`grid-cols-6` with mixed `col-span` and `row-span`).
+* **Zig-Zag Alternating:** Image-left/text-right → text-left/image-right. Never 3-column equal cards.
 * **Icon Strip:** Horizontal scrolling strip of feature icons with hover reveals.
 * **Comparison Table:** "Before vs After" or "Us vs Them" with dramatic visual difference.
 
 ### Social Proof Sections
-* **Logo Cloud:** Client/press logos in a subtle, auto-scrolling marquee strip. Grayscale → color on hover.
-* **Testimonial Masonry:** Staggered card heights. Real Korean names, real company names. Photo avatars.
-* **Metrics Bar:** Large numbers with animated counting effect. "47,200+ 페이지 생성", "4.9/5.0 만족도".
+* **Logo Cloud:** Auto-scrolling marquee strip using CSS `@keyframes marquee` and `animation: marquee 30s linear infinite` on a duplicated row. Grayscale → color on hover.
+* **Testimonial Masonry:** Staggered card heights. Real Korean names, real-feeling company names. `next/image` avatars.
+* **Metrics Bar:** Large numbers with animated counting effect via `motion/react` `useInView` + `animate`.
 * **Case Study Cards:** Before/after screenshots with overlay descriptions.
 
 ### CTA Sections
-* **Full-Bleed CTA:** Solid background section (palette-matched), massive text, accent CTA button, floating trust badges below.
-* **Sticky Bottom CTA:** Fixed bottom bar that appears after scrolling past the hero.
+* **Full-Bleed CTA:** Solid palette-matched section, massive text, accent shadcn `<Button>`, floating trust badges below.
+* **Sticky Bottom CTA:** `fixed bottom-0` bar that appears after scrolling past hero — client component using `useScroll`.
 * **Inline CTA:** Embedded within content flow, styled differently from surrounding sections.
 
 ### Footer
@@ -159,85 +247,117 @@ Do not default to generic layouts. Pull from this library of premium landing pag
 To guarantee premium, non-generic output:
 
 ### Visual & CSS
-* **NO Neon/Outer Glows.** Use inner borders or tinted shadows instead.
+* **NO Neon/Outer Glows.** Use inner borders or tinted shadows.
 * **NO Pure Black (#000000) or Pure White (#ffffff) as raw surfaces.** Use slightly tinted neutrals from the chosen palette.
 * **NO Oversaturated Accents.** Desaturate to blend with neutrals.
 * **NO Excessive Gradient Text.** One gradient text element per page maximum.
 
 ### Typography
-* **NO Inter, Noto Sans KR, Roboto, Arial.** Use Pretendard + premium English fonts.
+* **NO Inter, Noto Sans KR, Roboto, Arial.** Pretendard + premium English fonts only.
 * **NO Oversized H1s without purpose.** Control hierarchy with weight and color, not just size.
 
 ### Layout
-* **NO 3-Column Equal Card Rows.** Use Bento grids, zig-zag, or asymmetric layouts.
-* **NO Identical Section Layouts.** Each section must have a visually distinct structure.
-* **NO Edge-to-Edge Content.** Always use `max-w-7xl mx-auto` container constraints.
+* **NO 3-Column Equal Card Rows.** Use Bento, zig-zag, or asymmetric layouts.
+* **NO Identical Section Layouts.** Each section must have visually distinct structure.
+* **NO Edge-to-Edge Content.** Always use `max-w-7xl mx-auto` container.
 
 ### Content
-* **NO "John Doe" / "김철수".** Use creative, realistic Korean names: "하윤서", "박도현", "이서진".
+* **NO "John Doe" / "김철수".** Use creative realistic Korean names: "하윤서", "박도현", "이서진".
 * **NO "Acme Corp" / "넥서스".** Invent premium Korean brand names: "스텔라랩스", "베리파이", "루미너스".
 * **NO Round Numbers.** Use `47,200+` not `50,000+`. Use `4.87` not `5.0`.
 * **NO AI Cliche Copy.** Ban: "혁신적인", "원활한", "차세대", "게임 체인저". Write specific, concrete copy.
-* **NO Lorem Ipsum or 영문 Placeholder.** All content in natural Korean.
+* **NO Lorem Ipsum or English Placeholder.** All content in natural Korean.
+
+### Code & Stack
+* **NO `tailwind.config.js` with v3-style theme.** Use Tailwind v4 `@theme` in `globals.css`.
+* **NO `<script src="https://cdn.tailwindcss.com">`.** That's the CDN runtime — wrong stack.
+* **NO `<iconify-icon>` web component.** Use `@iconify/react` `<Icon />`.
+* **NO `<img src="picsum.photos/...">`.** Use `next/image` with `remotePatterns` configured.
+* **NO global `"use client"` at top of `page.tsx`.** Keep server boundary as high as possible.
+* **NO Pages Router (`pages/index.tsx`) by default.** App Router only unless user explicitly asks otherwise.
 
 ### External Resources
-* **NO Unsplash URLs.** Use `picsum.photos/seed/{name}/{w}/{h}` exclusively.
-* **NO Broken CDN Links.** Verify all CDN URLs are from major, reliable providers (jsdelivr, unpkg, cdnjs, code.iconify.design).
+* **NO Unsplash URLs.** Use `picsum.photos/seed/{name}/{w}/{h}` through `next/image`.
 
 ## 8. THE SUPANOVA LANDING PAGE FORMULA
 When generating a complete landing page, follow this exact structure:
 
-### A. Document Setup
-```html
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>페이지 제목</title>
-  <meta name="description" content="페이지 설명">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.min.css">
-  <script src="https://code.iconify.design/iconify-icon/2.3.0/iconify-icon.min.js"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Pretendard', 'system-ui', 'sans-serif'],
-          },
-        },
-      },
-    }
-  </script>
-</head>
+### A. Project Bootstrap (state assumed, do not re-output if scaffold exists)
+```bash
+npx create-next-app@latest supanova-landing --typescript --app --tailwind --eslint --src-dir=false --import-alias="@/*"
+cd supanova-landing
+npx shadcn@latest init -d
+npx shadcn@latest add button card badge separator
+npm i @iconify/react motion
+```
+`next.config.ts` must include:
+```ts
+import type { NextConfig } from "next";
+const config: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "i.pravatar.cc" },
+    ],
+  },
+};
+export default config;
 ```
 
 ### B. Mandatory Section Order (Minimum)
-1. **Navigation** — Floating glass pill nav OR minimal top bar
-2. **Hero** — The single most impactful section. Must be above the fold.
-3. **Social Proof Strip** — Logo cloud or metrics bar. Builds trust immediately.
-4. **Features** — 3-5 key features in Bento grid or zig-zag layout.
-5. **Testimonials** — Real-feeling Korean testimonials with names and roles.
-6. **CTA** — Full-bleed conversion section with primary action.
-7. **Footer** — Minimal, clean, essential links only.
+1. **Navigation** — Floating glass pill OR minimal top bar (`components/sections/nav.tsx`)
+2. **Hero** — Single most impactful section, above the fold
+3. **Social Proof Strip** — Logo cloud or metrics bar
+4. **Features** — 3-5 features in Bento or zig-zag
+5. **Testimonials** — Real-feeling Korean testimonials with names and roles
+6. **CTA** — Full-bleed conversion section with primary action
+7. **Footer** — Minimal, clean, essential links only
 
-### C. Design Philosophy
-* **Premium by Default:** Every pixel must look intentional. If it looks like a template, it fails.
-* **Korean-Native:** The page must feel like it was designed BY Koreans FOR Koreans. Not a translation.
-* **Conversion-Focused:** Every section should guide the eye toward the CTA. Visual hierarchy = conversion funnel.
-* **Mobile-First:** 70%+ of Korean web traffic is mobile. Design mobile-first, enhance for desktop.
+### C. page.tsx Composition
+```tsx
+import { Nav } from "@/components/sections/nav";
+import { Hero } from "@/components/sections/hero";
+import { SocialProof } from "@/components/sections/social-proof";
+import { Features } from "@/components/sections/features";
+import { Testimonials } from "@/components/sections/testimonials";
+import { CTA } from "@/components/sections/cta";
+import { Footer } from "@/components/sections/footer";
+
+export default function Page() {
+  return (
+    <main className="relative">
+      <Nav />
+      <Hero />
+      <SocialProof />
+      <Features />
+      <Testimonials />
+      <CTA />
+      <Footer />
+    </main>
+  );
+}
+```
+
+### D. Design Philosophy
+* **Premium by Default:** Every pixel intentional. Looks like a template → fails.
+* **Korean-Native:** Page must feel designed BY Koreans FOR Koreans. Not translation.
+* **Conversion-Focused:** Every section guides eye toward CTA. Visual hierarchy = conversion funnel.
+* **Mobile-First:** 70%+ Korean web traffic is mobile. Design mobile-first, enhance for desktop.
 
 ## 9. FINAL PRE-FLIGHT CHECK
-Evaluate against this matrix before outputting:
-- [ ] Is the output a single, standalone HTML file that works in a browser?
-- [ ] Is Pretendard loaded and set as the primary font?
-- [ ] Are all icons using Iconify Solar set?
-- [ ] Is all visible text content written in natural Korean?
-- [ ] Does `word-break: keep-all` exist on Korean text blocks?
-- [ ] Do full-height sections use `min-h-[100dvh]` not `h-screen`?
-- [ ] Is mobile layout (`w-full`, `px-4`) guaranteed for all sections?
-- [ ] Are CTA buttons large enough for mobile tap targets (min 48px height)?
-- [ ] Does each section use a DIFFERENT layout pattern from its neighbors?
-- [ ] Are there zero banned fonts, zero emoji, zero Unsplash links?
-- [ ] Does the page feel premium, not template-like?
+Evaluate before output:
+- [ ] Next.js 15 App Router project with `app/layout.tsx`, `app/page.tsx`, `app/globals.css`?
+- [ ] Tailwind v4 via `@import "tailwindcss"` and `@theme` block — no CDN script, no v3 config file?
+- [ ] Pretendard loaded via `next/font/local`, set as primary font through `--font-pretendard` and `@theme`?
+- [ ] shadcn `<Button>`, `<Card>` etc. used where appropriate, installed in `components/ui/`?
+- [ ] All icons via `@iconify/react` Solar set — no `<iconify-icon>` web component?
+- [ ] All images via `next/image` with `remotePatterns` configured for picsum/pravatar?
+- [ ] All visible text written in natural Korean?
+- [ ] `break-keep-all` (via global `word-break: keep-all`) applied to Korean blocks?
+- [ ] Full-height sections use `min-h-[100dvh]`, not `h-screen`?
+- [ ] Mobile layout (`w-full`, `px-4`) guaranteed for all sections?
+- [ ] CTA buttons meet 48px+ mobile tap target?
+- [ ] Each section uses DIFFERENT layout pattern from neighbors?
+- [ ] Zero banned fonts, zero emoji, zero Unsplash links?
+- [ ] `"use client"` confined to interactive leaf components?
+- [ ] Page feels premium, not template-like?
