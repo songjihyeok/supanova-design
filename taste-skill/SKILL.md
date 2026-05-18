@@ -81,15 +81,32 @@ public/
 * **Server vs Client Components:** Default to Server Components. Mark `"use client"` ONLY when a section uses motion hooks, state, refs, IntersectionObserver, or browser-only APIs. Keep client islands as small as possible — extract interactive bits (e.g. `<HeroAnimation />`) and import them into a server-rendered section.
 
 ### Required globals.css Skeleton
+
+**USER-THEME-DRIVEN TOKEN GENERATION [HARD RULE].** The values below are **placeholder slots**, not literal output. Before emitting `globals.css`, resolve every `--color-*` token from the user-provided palette. The literal `oklch(...)` values shown here are illustrative only — emitting them verbatim when the user has supplied colors is a failure. If the user has NOT supplied a palette, run the Design Brief Script and ask; do not default to these placeholders.
+
+**Token derivation order (no exceptions):**
+1. **User-supplied tokens win.** Map every user color into a slot below by role. Match by intent (base = `surface`, text = `ink`, primary brand = `accent`, etc.), not by name.
+2. **Theme polarity follows user direction.** If user picked light → `--color-surface` lightness ≥ `0.96`, `--color-ink` lightness `0.18`–`0.32`. If dark → invert. Never emit `--color-ink` with lightness `< 0.30` on a light page where user supplied a non-dark text color.
+3. **Missing slots get derived from supplied ones.** `--color-surface-muted` = surface shifted by ±2% lightness. `--color-ink-muted` = ink lightness + 0.25, chroma halved. `--color-line` = surface shifted by 6–10% toward ink. Never invent unrelated hues.
+4. **Skeleton placeholders below are emitted ONLY when user explicitly delegates ("알아서 해줘") AND project category map provides a default.** Otherwise replace each value with the user-derived counterpart.
+
 ```css
 @import "tailwindcss";
 
 @theme {
   --font-sans: var(--font-pretendard), "Geist", system-ui, sans-serif;
   --font-display: var(--font-display), "Geist", system-ui, sans-serif;
-  --color-surface: oklch(0.99 0.005 90);
-  --color-ink: oklch(0.18 0.02 270);
-  --color-accent: oklch(0.7 0.15 30);
+
+  /* ↓ PLACEHOLDERS — REPLACE FROM USER PALETTE BEFORE EMITTING ↓ */
+  --color-surface: oklch(0.99 0.005 90);        /* user.base / page background */
+  --color-surface-muted: oklch(0.96 0.005 90);  /* derived: surface ±2% L */
+  --color-ink: oklch(0.22 0.02 270);            /* user.text / body — NEVER < 0.30 L on light themes */
+  --color-ink-muted: oklch(0.47 0.015 270);     /* derived: ink + 0.25 L, chroma/2 */
+  --color-line: oklch(0.90 0.004 90);           /* derived: borders/rings — neutral light */
+  --color-accent: oklch(0.70 0.15 30);          /* user.accent */
+  --color-accent-foreground: oklch(0.99 0.005 90); /* readable on accent */
+  /* ↑ END PLACEHOLDERS ↑ */
+
   --ease-supanova: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -147,13 +164,15 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
   * **CRITICAL:** Korean text needs `leading-tight` to `leading-snug` (NOT `leading-none`). Korean glyphs need more vertical breathing room than Latin.
   * **Word Breaking:** Add `break-keep` to Korean text blocks to prevent mid-word breaks. Already set globally on `body` via `word-break: keep-all`, but reassert at the block level when needed.
 * **English Display Text:** `tracking-tighter leading-none` for max impact with Latin fonts.
-* **Body/Paragraphs:** `text-base md:text-lg text-gray-600 leading-relaxed max-w-[65ch]`.
+* **Body/Paragraphs:** `text-base md:text-lg text-ink-muted leading-relaxed max-w-[65ch]`. Never `text-gray-*` — use the derived ink-muted token so warm/cream palettes get warm-tinted body text, not cool slate.
 * **ANTI-SLOP FONTS:** `Inter` BANNED. `Noto Sans KR` BANNED (use Pretendard — modern Korean standard). `Roboto`, `Arial`, `Open Sans` BANNED.
 
 **Rule 2: Color Calibration**
 * **Constraint:** Max 1 accent color per page. Saturation < 80%.
 * **THE LILA BAN:** Purple/Blue "AI" gradients BANNED. No neon glows, no purple button effects.
 * **USER THEME FIRST [CRITICAL]:** User's explicit theme and palette choices override defaults below as long as they don't violate accessibility or banned-pattern rules. If user provides colors, normalize into coherent base + one accent.
+* **USER PALETTE = SOLE SOURCE OF TRUTH [HARD RULE]:** Once user supplies a palette, EVERY color emitted into `@theme`, JSX `className`, and inline style must derive from that palette via the token derivation order in the globals.css section. Banned: emitting `--color-ink: oklch(0.18 …)` when user gave a non-dark text color; using raw `bg-black/5`, `ring-black/5`, `bg-ink`, `text-ink` while the underlying `--color-ink` slot still holds the dark placeholder. Components reference semantic tokens (`bg-surface`, `text-ink`, `border-line`, `bg-accent`) and those tokens must already hold user-derived values before render.
+* **NO HIDDEN DARK INJECTION [HARD RULE]:** `bg-black/*`, `ring-black/*`, `border-black/*`, `text-black`, `shadow-[*_rgba(0,0,0,*)]` are BANNED in source. They override the user palette by leaking pure black. Replace with `border-line`, `ring-line`, `bg-surface-muted`, or theme-tinted `shadow-[0_*_*_var(--color-ink)/0.06]`. Same for `bg-white/*` on dark themes — use `border-line` or surface tints.
 * **ASK BEFORE DEFAULTING [CRITICAL]:** Do not choose palette unilaterally. Ask via Design Brief Script first for palette/accent. Theme (light/dark) defaults to LIGHT without asking unless user delegated full control.
 * **DEFAULT IS LIGHT [HARD RULE]:** Base defaults to LIGHT. Dark is opt-in via explicit keyword ("dark", "다크", "어두운") OR category in {Gaming, Music, Cinema, Nightlife}. "Premium", "luxury", "cinematic", "minimal", "editorial" do NOT trigger dark. When the prompt is silent on theme, pick LIGHT — never charcoal/ink base.
 * **CARD/SURFACE BRIGHTNESS [HARD RULE]:** On light theme, card backgrounds must be `#FFFFFF`, `#FAFAF7`, `#FBF9F4`, or other near-white from palette map. NEVER use `#0F0F12`, `#1A1A1A`, charcoal, or near-black card surfaces on a light page. Section dividers via subtle tone shifts only.
@@ -169,7 +188,7 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
   * **Gaming / Music / Cinema / Nightlife:** Dark base permitted — charcoal `#0F0F12` or deep ink `#0A0C14`. Accent: amber `#E8A547`, magenta `#D14B7F`, cyan `#5AC8D0`.
 * **Palette Selection Process:** Collect or infer category, theme, base color, accent before writing code. If user supplied colors, use them after checking contrast and saturation. If not supplied, propose 2-3 options from map and ask. Only pick single fallback yourself when user explicitly delegates.
 * **COLOR CONSISTENCY:** One palette for entire page. Never mix warm and cool grays.
-* **Bright-Surface Discipline:** When base is light, body text `text-gray-700` to `text-gray-900` (not `text-gray-400` washouts). Section dividers via subtle tone shifts (`bg-white` → `bg-gray-50/60`), not dark slabs.
+* **Bright-Surface Discipline:** When base is light, body text uses `text-ink` (primary) and `text-ink-muted` (secondary) — never washed-out grays. Section dividers via subtle tone shifts (`bg-surface` → `bg-surface-muted`), never dark slabs. Both tokens already inherit the user's warm/cool palette character, so dividers stay tonally consistent.
 
 **Rule 3: Landing Page Layout Diversification**
 * **ANTI-CENTER BIAS:** When `DESIGN_VARIANCE > 4`, centered Hero sections BANNED. Use:
@@ -184,7 +203,7 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 
 **Rule 4: Materiality and Depth**
 * Use cards (shadcn `<Card>` or custom Double-Bezel) ONLY when elevation communicates hierarchy. When shadows are needed, tint them to the background hue.
-* **Glass Effects:** Go beyond `backdrop-blur`. Add `border border-white/10` and `shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]` for physical edge refraction.
+* **Glass Effects:** Go beyond `backdrop-blur`. Add `border border-line` and `shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-surface)_55%,white)]` for physical edge refraction. Never raw `border-white/10` or `rgba(255,255,255,*)` — those leak pure white that fights warm/cream surface tones.
 * **Grain Texture:** Add subtle noise overlay via fixed `pointer-events-none` div rendered once in `layout.tsx`, not per-section.
 
 **Rule 5: Conversion-Driven UI States**
@@ -202,7 +221,7 @@ LLMs have statistical biases toward specific UI cliches. These rules produce pre
 ## 4. CREATIVE PROACTIVITY (Anti-Generic Implementation)
 Systematically implement these high-end patterns as baseline:
 
-* **"Liquid Glass" Refraction:** Beyond `backdrop-blur-xl`. Layer `border border-white/10`, `shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]`, subtle `bg-white/5`.
+* **"Liquid Glass" Refraction:** Beyond `backdrop-blur-xl`. Layer `border border-line`, `shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-surface)_50%,white)]`, subtle `bg-surface/60`. NEVER hardcode `rgba(255,255,255,*)` or `bg-white/*` — the highlight must mix from the user's surface token so warm/cream/dark palettes all render correctly.
 * **Magnetic CTA Buttons:** Tailwind `transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]` with hover translate on the nested arrow icon. For real magnetic effect use `motion/react` `useMotionValue` + `useTransform` inside a client component.
 * **Staggered Reveals:** Use `motion/react` `<motion.div initial={{opacity:0, y:32}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{delay: i*0.08, ease:[0.16,1,0.3,1]}}>` pattern. Wrap section as client component when needed.
 * **Floating Elements:** `animate-[float_6s_ease-in-out_infinite]` referencing the `@keyframes float` declared in `globals.css`.

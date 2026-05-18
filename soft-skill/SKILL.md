@@ -13,6 +13,15 @@ description: Teaches AI to design Next.js landing pages that feel like $150k age
 ## 2. THE "ABSOLUTE ZERO" DIRECTIVE (STRICT ANTI-PATTERNS)
 If generated code includes ANY of these, design instantly fails:
 
+- **Banned Raw Color Utilities [HARD RULE]:** When the user supplies a theme, the following classes BYPASS the palette and corrupt the design system — DO NOT EMIT:
+  - `bg-black/*`, `bg-white/*`, `text-black`, `text-white` (use `bg-surface`, `bg-surface-muted`, `text-ink`, `text-accent-foreground`)
+  - `ring-black/*`, `ring-white/*`, `border-black/*`, `border-white/*` (use `border-line`, `ring-line`, or `ring-accent/30` for focus)
+  - `text-gray-*`, `text-slate-*`, `text-stone-*`, `text-zinc-*`, `text-neutral-*` (use `text-ink`, `text-ink-muted`)
+  - `bg-gray-*`, `bg-slate-*`, `bg-stone-*`, `bg-zinc-*`, `bg-neutral-*` (use `bg-surface`, `bg-surface-muted`)
+  - `shadow-[*_rgba(0,0,0,*)]` and `shadow-[*_rgba(255,255,255,*)]` (use `shadow-[*_color-mix(in_oklab,var(--color-ink)_8%,transparent)]`)
+  - Tailwind's default `shadow-md`/`shadow-lg`/`shadow-xl` (use palette-tinted custom shadows)
+
+  The archetype examples below cite raw classes for legibility only — translate every one through palette tokens before emitting.
 - **Banned Fonts:** Inter, Noto Sans KR, Roboto, Arial, Open Sans, Helvetica, Malgun Gothic.
 - **Banned Icon Sources:** Thick-stroked Lucide as the primary icon system, FontAwesome, Material Icons. Use ONLY `@iconify/react` Solar set (ultra-clean, consistent weight). Lucide allowed only as inherited icons inside shadcn primitives (Check, ChevronDown, etc.).
 - **Banned Borders & Shadows:** Generic `border border-gray-200`. Harsh dark `shadow-md` or `rgba(0,0,0,0.3)`.
@@ -36,8 +45,8 @@ After brief is answered or delegated, select ONE from each category:
 
 Each archetype is implemented as a set of `@theme` tokens in `globals.css` plus matching Tailwind utility patterns in section components.
 
-1. **Modern Tech (SaaS / AI / Dev Tools):** Light neutral base `oklch(0.98 0.005 90)` (`#FAFAFA`) or warm white `#F9F8F6`. Subtle radial mesh gradient orbs (low-opacity, tone-matched accent) in a `<MeshBackground />` server component. Glass-effect cards with `backdrop-blur-2xl bg-white/60` and hairline `ring-1 ring-black/5`. Wide geometric Grotesk English (`Geist` via `next/font/google`) + Pretendard Korean. Text `text-gray-900`.
-2. **Warm Editorial (Lifestyle / Brand / Agency / F&B):** Warm creams (`#FDFBF7`, `#FAF7F0`, `#F5EFE6`), muted sage / espresso / persimmon accents. High-contrast serif English headings (`Cabinet Grotesk` via `next/font/local`) + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture — one fixed div in `layout.tsx`. Body text `text-stone-700`.
+1. **Modern Tech (SaaS / AI / Dev Tools):** Light neutral base (target lightness `0.97`–`0.99`, near-neutral chroma). Subtle radial mesh gradient orbs (low-opacity, tone-matched accent) in a `<MeshBackground />` server component. Glass-effect cards: `backdrop-blur-2xl bg-surface/70` and hairline `border border-line` (NOT `ring-1 ring-black/5`). Wide geometric Grotesk English (`Geist` via `next/font/google`) + Pretendard Korean. Body text `text-ink`, secondary `text-ink-muted`.
+2. **Warm Editorial (Lifestyle / Brand / Agency / F&B):** Warm cream surfaces from user palette, muted sage / espresso / persimmon accents. High-contrast serif English headings (`Cabinet Grotesk` via `next/font/local`) + Pretendard Korean body. Subtle CSS noise overlay (`opacity-[0.03]`) for paper texture — one fixed div in `layout.tsx`. Body text `text-ink-muted` (a warmer ink derived from the cream surface, NOT `text-stone-700`).
 3. **Clean Structural (Consumer / Health / Portfolio / Study):** Off-white or silver-grey backgrounds (`#FAFAF7`, `#F7F8FA`). Massive bold display typography. Floating components with ultra-diffused ambient shadows tokenized as `--shadow-supanova: 0 20px 60px -15px rgb(0 0 0 / 0.05)`. Accent driven by project category (see Project Palette Map in `supanova-design-engine`).
 4. **Dark Cinematic (Gaming / Music / Cinema / Luxury Nightlife ONLY — gated):** Charcoal `#0F0F12` or deep ink `#0A0C14`. **Gate:** before selecting this archetype, confirm user message contains an explicit dark-theme keyword OR project category is one of the four above. If gate fails, pick Archetype 3. Amber / magenta / cyan accent. Do NOT default here — including for "premium", "luxury", or "AI" framing.
 
@@ -61,15 +70,17 @@ Each archetype is implemented as a set of `@theme` tokens in `globals.css` plus 
 ## 4. HAPTIC MICRO-AESTHETICS (COMPONENT MASTERY)
 
 ### A. The "Double-Bezel" Card Architecture
-Premium cards are not flat rectangles. They look like machined hardware — a glass plate in an aluminum tray. Build as a custom `<BezelCard />` component (or extend shadcn `<Card>`):
+Premium cards are not flat rectangles. They look like machined hardware — a glass plate in an aluminum tray. Build as a custom `<BezelCard />` component (or extend shadcn `<Card>`).
+
+**THEME-DRIVEN [HARD RULE]:** Bezel colors derive from the active palette tokens (`--color-surface`, `--color-surface-muted`, `--color-line`). NEVER hardcode `bg-black/*`, `ring-black/*`, `bg-white/*` — those override user theme. Use the semantic classes below; tokens defined in `globals.css` resolve them.
 
 ```tsx
 export function BezelCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="rounded-[2rem] bg-black/5 p-1.5 ring-1 ring-black/5">
+    <div className="rounded-[2rem] bg-surface-muted p-1.5 border border-line">
       <div
         className={cn(
-          "rounded-[calc(2rem-0.375rem)] bg-white shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]",
+          "rounded-[calc(2rem-0.375rem)] bg-surface shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-surface)_60%,white)]",
           className,
         )}
       >
@@ -80,11 +91,14 @@ export function BezelCard({ children, className }: { children: React.ReactNode; 
 }
 ```
 
-- **Outer Shell:** Wrapper with `bg-white/5` (dark) or `bg-black/5` (light), `ring-1 ring-white/10` or `ring-black/5`, `p-1.5`, `rounded-[2rem]`.
-- **Inner Core:** Distinct background, inner highlight (`shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]`), calculated smaller radius (`rounded-[calc(2rem-0.375rem)]`).
+- **Outer Shell:** Wrapper uses `bg-surface-muted` (a derived shade of the user's base) and `border border-line`. Never `bg-black/5` / `bg-white/5`. `p-1.5`, `rounded-[2rem]`.
+- **Inner Core:** `bg-surface` (user base). Inner highlight via `shadow-[inset_0_1px_0_color-mix(in_oklab,var(--color-surface)_60%,white)]` — the highlight is mixed FROM the surface token so it stays tonally aligned with the user palette. Calculated smaller radius (`rounded-[calc(2rem-0.375rem)]`).
+- **Dark theme variant:** Same classes — tokens flip via the dark palette. No separate dark-only ring/border needed.
 
 ### B. Premium CTA Button Architecture
 Extend shadcn `<Button>` with a `supanova` variant in `components/ui/button.tsx`:
+
+**THEME-DRIVEN [HARD RULE]:** Button surface uses palette tokens — `bg-accent text-accent-foreground` for the primary action, or `bg-ink text-surface` ONLY when `--color-ink` has been derived from the user's text color (not the dark placeholder). The nested arrow chip uses `bg-accent-foreground/10` (mix on accent base), NOT raw `bg-white/10` — that leaks a pure-white wash that breaks warm/cream palettes.
 
 ```tsx
 const buttonVariants = cva(
@@ -93,7 +107,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         supanova:
-          "rounded-full bg-ink text-surface px-8 py-4 text-lg hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent",
+          "rounded-full bg-accent text-accent-foreground px-8 py-4 text-lg hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
       },
     },
   },
@@ -102,9 +116,9 @@ const buttonVariants = cva(
 
 Usage:
 ```tsx
-<Button variant="supanova">
+<Button variant="supanova" className="group">
   무료로 시작하기
-  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 transition-transform group-hover:translate-x-1">
+  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-foreground/10 transition-transform group-hover:translate-x-1">
     <Icon icon="solar:arrow-right-linear" />
   </span>
 </Button>
@@ -138,7 +152,7 @@ transition={{ type: "spring", stiffness: 260, damping: 22 }}
 ```
 
 ### B. Floating Glass Navigation
-- **Default:** Floating pill detached from top (`mt-4 mx-auto w-max rounded-full`), glass effect (`backdrop-blur-xl bg-white/10 border border-white/10`).
+- **Default:** Floating pill detached from top (`mt-4 mx-auto w-max rounded-full`), glass effect (`backdrop-blur-xl bg-surface/70 border border-line`). On dark themes the same classes resolve to a translucent surface tint — no separate dark-only `bg-white/10` needed.
 - **Implementation:** `components/sections/nav.tsx` as a server component for layout; mobile menu trigger and overlay extracted into a `<MobileMenu />` client component.
 - **Mobile Menu:** Expands as full-screen overlay with `backdrop-blur-3xl`. Nav links stagger-reveal via `motion/react` `staggerChildren`.
 
